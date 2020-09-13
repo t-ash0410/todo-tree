@@ -11,8 +11,8 @@ type SQLQueryHandler struct {
 }
 
 //NewQueryHandler QueryHandlerの生成
-func NewQueryHandler(connectionString string) *SQLQueryHandler {
-	conn, err := sql.Open("mysql", connectionString)
+func NewQueryHandler(ctx DBContext) *SQLQueryHandler {
+	conn, err := sql.Open("mysql", ctx.ConnectionString)
 	if err != nil {
 		panic(err)
 	}

@@ -11,8 +11,8 @@ type SQLCommandHandler struct {
 }
 
 //NewCommandHandler SQLCommandHandlerの生成
-func NewCommandHandler(connectionString string) *SQLCommandHandler {
-	conn, err := gorm.Open(mysql.Open(connectionString), &gorm.Config{})
+func NewCommandHandler(ctx DBContext) *SQLCommandHandler {
+	conn, err := gorm.Open(mysql.Open(ctx.ConnectionString), &gorm.Config{})
 	if err != nil {
 		panic(err)
 	}
