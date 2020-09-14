@@ -1,6 +1,8 @@
 package main
 
 import (
+	"log"
+
 	"todo-tree/app/infrastructure/controller"
 	"todo-tree/app/infrastructure/datastore"
 	userRepository "todo-tree/app/infrastructure/datastore/user"
@@ -12,7 +14,9 @@ import (
 func main() {
 	container := initDIContainer()
 	router := initRouter(container)
-	router.Run()
+	if err := router.Run(":8080"); err != nil {
+		log.Fatal("Server Run Failed.: ", err)
+	}
 }
 
 func initDIContainer() *dig.Container {
