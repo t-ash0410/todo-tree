@@ -1,8 +1,8 @@
 package usecase
 
 import (
-	"todo-tree/app/entity"
-	"todo-tree/app/interface/datastore/user"
+	"todo-tree/entity"
+	"todo-tree/interface/datastore/user"
 )
 
 //UserInteractor ユーザに関するビジネスロジックを定義

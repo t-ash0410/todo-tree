@@ -1,7 +1,7 @@
 package datastore
 
 import (
-	"todo-tree/app/entity"
+	"todo-tree/entity"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"

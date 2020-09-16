@@ -2,10 +2,10 @@ package controller
 
 import (
 	"strconv"
-	"todo-tree/app/entity"
-	"todo-tree/app/interface/controller"
-	"todo-tree/app/interface/datastore/user"
-	"todo-tree/app/usecase"
+	"todo-tree/entity"
+	"todo-tree/interface/controller"
+	"todo-tree/interface/datastore/user"
+	"todo-tree/usecase"
 )
 
 //UserController Userに関する操作の窓口

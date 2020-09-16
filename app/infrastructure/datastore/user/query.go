@@ -1,8 +1,8 @@
 package user
 
 import (
-	"todo-tree/app/entity"
-	"todo-tree/app/infrastructure/datastore"
+	"todo-tree/entity"
+	"todo-tree/infrastructure/datastore"
 )
 
 //DBUserQuery Userの参照系クエリを司る

@@ -1,7 +1,7 @@
 package user
 
 import (
-	"todo-tree/app/entity"
+	"todo-tree/entity"
 )
 
 //IUserCommand UserCommandのインターフェース

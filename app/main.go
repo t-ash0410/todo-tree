@@ -3,9 +3,9 @@ package main
 import (
 	"log"
 
-	"todo-tree/app/infrastructure/controller"
-	"todo-tree/app/infrastructure/datastore"
-	userRepository "todo-tree/app/infrastructure/datastore/user"
+	"todo-tree/infrastructure/controller"
+	"todo-tree/infrastructure/datastore"
+	userRepository "todo-tree/infrastructure/datastore/user"
 
 	gin "github.com/gin-gonic/gin"
 	dig "go.uber.org/dig"
@@ -23,7 +23,7 @@ func initDIContainer() *dig.Container {
 	container := dig.New()
 	container.Provide(func() (datastore.DBContext, error) {
 		return datastore.DBContext{
-			ConnectionString: "root:password@tcp(172.21.0.2:3306)/sample_docker_compose?charset=utf8mb4&parseTime=True&loc=Local",
+			ConnectionString: "root:password@tcp(172.21.0.2:3306)/todo_tree?charset=utf8mb4&parseTime=True&loc=Local",
 		}, nil
 	})
 	container.Provide(datastore.NewCommandHandler)
@@ -36,6 +36,9 @@ func initDIContainer() *dig.Container {
 
 func initRouter(container *dig.Container) *gin.Engine {
 	router := gin.Default()
+	router.GET("/", func(ctrl *gin.Context) {
+		ctrl.String(200, "Hello Gin!")
+	})
 	router.POST("/users", func(c *gin.Context) {
 		container.Invoke(func(ctrl controller.UserController) {
 			ctrl.Create(c)
