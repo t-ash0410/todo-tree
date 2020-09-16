@@ -1,5 +1,3 @@
-.devcontainer/*
-docker-compose.yml
 main
 view/node_modules/*
 view/static/script/*

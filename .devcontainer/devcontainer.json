@@ -1,0 +1,20 @@
+{
+	"name": "todo-tree",
+	"dockerComposeFile": [
+	  "../docker-compose.yml"
+	],
+	"service": "web",
+	"workspaceFolder": "/todo-tree",
+	"extensions": [
+		"ms-azuretools.vscode-docker",
+		"golang.go",
+		"octref.vetur"
+	],
+	"settings": {
+	  "editor.tabSize": 2,
+	  "files.insertFinalNewline": true,
+	  "files.trimFinalNewlines": true,
+	  "terminal.integrated.shell.linux": "/bin/bash"
+	},
+	"shutdownAction": "none"
+}
