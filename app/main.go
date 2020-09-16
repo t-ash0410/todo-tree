@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 
 	"todo-tree/infrastructure/controller"
 	"todo-tree/infrastructure/datastore"
@@ -36,16 +37,15 @@ func initDIContainer() *dig.Container {
 
 func initRouter(container *dig.Container) *gin.Engine {
 	router := gin.Default()
-	router.GET("/", func(ctrl *gin.Context) {
-		ctrl.String(200, "Hello Gin!")
-	})
+
+	router.StaticFS("/static", http.Dir("../view/static"))
 	router.POST("/users", func(c *gin.Context) {
-		container.Invoke(func(ctrl controller.UserController) {
+		container.Invoke(func(ctrl *controller.UserController) {
 			ctrl.Create(c)
 		})
 	})
 	router.GET("/users/:id", func(c *gin.Context) {
-		container.Invoke(func(ctrl controller.UserController) {
+		container.Invoke(func(ctrl *controller.UserController) {
 			ctrl.Get(c)
 		})
 	})
