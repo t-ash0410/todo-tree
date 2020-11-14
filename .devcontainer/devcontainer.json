@@ -1,20 +1,26 @@
 {
 	"name": "todo-tree",
 	"dockerComposeFile": [
-	  "../docker-compose.yml"
+		"../docker-compose.yml"
 	],
-	"service": "web",
+	"service": "frontend",
 	"workspaceFolder": "/todo-tree",
 	"extensions": [
 		"ms-azuretools.vscode-docker",
-		"golang.go",
-		"octref.vetur"
+		"ms-vscode.vscode-typescript-next",
+		"foxundermoon.next-js",
+		"esbenp.prettier-vscode",
+		"dsznajder.es7-react-js-snippets",
+		"wscats.eno"
 	],
 	"settings": {
-	  "editor.tabSize": 2,
-	  "files.insertFinalNewline": true,
-	  "files.trimFinalNewlines": true,
-	  "terminal.integrated.shell.linux": "/bin/bash"
+		"editor.tabSize": 2,
+		"editor.codeActionsOnSave": {
+			"source.fixAll.eslint": true
+		},
+		"files.insertFinalNewline": true,
+		"files.trimFinalNewlines": true,
+		"terminal.integrated.shell.linux": "/bin/bash"
 	},
 	"shutdownAction": "none"
 }

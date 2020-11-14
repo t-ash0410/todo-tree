@@ -1,38 +1,14 @@
-version: '3'
+version: "3"
 
 services:
-  db:
-    container_name: db
+  frontend:
     build:
       context: .
-      dockerfile: ./.devcontainer/db/Dockerfile
-    hostname: db
+      dockerfile: ./.devcontainer/frontend/Dockerfile
+    container_name: todo-tree-frontend
     ports:
-      - "3306:3306"
-    environment:
-      MYSQL_USER: root
-      MYSQL_ROOT_PASSWORD: password
-      MYSQL_DATABASE: password
-    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --skip-character-set-client-handshake
-    volumes:
-      - "db-data:/var/lib/mysql"
-      - "./.devcontainer/db/my.conf:/etc/mysql/my.conf"
-      - "./.devcontainer/db/init/:/docker-entrypoint-initdb.d"
-  web:
-    links:
-      - db
-    build:
-      context: .
-      dockerfile: ./.devcontainer/web/Dockerfile
-    container_name: web
-    ports:
-      - "8080:8080"
-      - "9080:9080"
+      - "3000:3000"
     volumes:
       - .:/todo-tree
     command: /bin/bash -c "while sleep 1000; do :; done"
     stdin_open: true
-
-volumes:
-  db-data:
-    driver: local      
