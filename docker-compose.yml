@@ -2,13 +2,30 @@ version: "3"
 
 services:
   frontend:
-    build:
-      context: .
-      dockerfile: ./.devcontainer/frontend/Dockerfile
+    image: node:14.10.1
     container_name: todo-tree-frontend
+    tty: true
     ports:
       - "3000:3000"
     volumes:
       - .:/todo-tree
-    command: /bin/bash -c "while sleep 1000; do :; done"
+    command: > 
+      cd /todo-tree/frontend &&
+      yarn install &&
     stdin_open: true
+
+  backend:
+    image: lambci/lambda:go1.x
+    container_name: todo-tree-backend
+    tty: true
+    ports:
+      - 9001:9001
+    volumes:
+      - ../lambda/Hello:/var/task:rw,delegated
+      - ./opt:/opt:ro,delegated
+    environment:
+      DOCKER_LAMBDA_STAY_OPEN: 1
+      DOCKER_LAMBDA_WATCH: 1
+      DOCKER_LAMBDA_DEBUG: 1
+      TZ: 'Asia/Tokyo'
+    command: index.handler
