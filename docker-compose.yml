@@ -2,30 +2,49 @@ version: "3"
 
 services:
   frontend:
-    image: node:14.10.1
     container_name: todo-tree-frontend
+    build:
+      context: .
+      dockerfile: ./frontend/Dockerfile
     tty: true
     ports:
       - "3000:3000"
     volumes:
-      - .:/todo-tree
-    command: > 
-      cd /todo-tree/frontend &&
-      yarn install &&
+      - ./frontend:/todo-tree-frontend
+    command: /bin/bash -c "while sleep 1000; do :; done"
     stdin_open: true
 
   backend:
-    image: lambci/lambda:go1.x
     container_name: todo-tree-backend
-    tty: true
+    build:
+      context: .
+      dockerfile: ./backend/Dockerfile
     ports:
-      - 9001:9001
+      - "8080:8080"
+      - "9080:9080"
     volumes:
-      - ../lambda/Hello:/var/task:rw,delegated
-      - ./opt:/opt:ro,delegated
+      - ./backend:/todo-tree-backend
+    command: /bin/bash -c "while sleep 1000; do :; done"
+    stdin_open: true
+  
+  db:
+    container_name: todo-tree-db
+    build:
+      context: .
+      dockerfile: ./db/Dockerfile
+    hostname: db
+    ports:
+      - "3306:3306"
     environment:
-      DOCKER_LAMBDA_STAY_OPEN: 1
-      DOCKER_LAMBDA_WATCH: 1
-      DOCKER_LAMBDA_DEBUG: 1
-      TZ: 'Asia/Tokyo'
-    command: index.handler
+      MYSQL_USER: root
+      MYSQL_ROOT_PASSWORD: password
+      MYSQL_DATABASE: password
+    command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci --skip-character-set-client-handshake
+    volumes:
+      - "db-data:/var/lib/mysql"
+      - "./db/my.conf:/etc/mysql/my.conf"
+      - "./db/init/:/docker-entrypoint-initdb.d"
+
+volumes:
+  db-data:
+    driver: local 
