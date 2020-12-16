@@ -3,7 +3,6 @@ import { Box, IconButton, TextField } from '@material-ui/core';
 import { Save } from '@material-ui/icons';
 import Task from '../../interfaces/task';
 import DetailFrame from '../templates/taskDetail';
-import { updateTask as ajaxUpdate } from '../../lib/http/task';
 
 interface Props { 
   task: Task,
@@ -19,9 +18,7 @@ const UpdateDetail = (props: Props): JSX.Element => {
   }
 
   const complete = () => {
-    ajaxUpdate(task, (newTask: Task) => {
-      props.onUpdate(newTask);
-    });
+    props.onUpdate(task);
   }
 
   const name = (

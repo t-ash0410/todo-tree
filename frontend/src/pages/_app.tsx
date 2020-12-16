@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { ThemeProvider, StylesProvider } from '@material-ui/styles';
 import { CssBaseline, Container, makeStyles } from '@material-ui/core';
 import theme from '../styles/theme';
@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
 const MyApp = ({ Component, pageProps }): JSX.Element => {
     const classes = useStyles();
 
-    React.useEffect(() => {
+    useEffect(() => {
         const jssStyles = document.querySelector('#jss-server-side')
         if (jssStyles && jssStyles.parentNode) {
             jssStyles.parentNode.removeChild(jssStyles)

@@ -12,9 +12,8 @@ import {
 } from '@material-ui/core';
 import AddIcon from '@material-ui/icons/Add';
 import Task from '../../interfaces/task';
-import { createTask as ajaxCreate } from '../../lib/http/task';
 
-interface Props { addTask: (newTask: Task) => void };
+interface Props { addTask: (newTask: Task) => Promise<Task> };
 
 const AddTaskButton = (props: Props): JSX.Element => {
   const [open, setOpen] = useState(false);
@@ -38,11 +37,11 @@ const AddTaskButton = (props: Props): JSX.Element => {
   }
 
   const submit = () => {
-    ajaxCreate(task, (newTask: Task) => {
-      props.addTask(newTask);
-      setTask(defaultValue);
-      handleClose();
-    });
+    props.addTask(task)
+      .then(res => {
+        setTask(defaultValue);
+        handleClose();
+      });
   }
 
   return (

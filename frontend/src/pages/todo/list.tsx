@@ -1,34 +1,21 @@
-import React, { useState } from 'react';
-import { GetServerSideProps } from 'next';
+import React from 'react';
 import { useRouter } from 'next/router';
+import useSWR, { mutate } from "swr";
 import { TableRow, TableCell, IconButton } from '@material-ui/core';
 import { Delete } from '@material-ui/icons';
 import Task from '../../interfaces/task';
-import resolve from '../../lib/apiPathResolver';
 import Table from '../../components/templates/table';
 import AddTaskButton from '../../components/organisms/addTaskButton';
 import ModalButton from '../../components/organisms/modalButton';
-import { deleteTask as ajaxDelete } from '../../lib/http/task';
+import { getEndPoint } from '../../lib/http/task';
+import { api } from '../../lib/api';
 
-interface Props { tasks: Task[] };
-
-const ToDoList = (props: Props): JSX.Element => {
-  const router = useRouter();
-  const routing = (e: React.MouseEvent, id: string) => {
-    if (e.defaultPrevented) return;
-    router.push(`/todo/${id}`);
-  }
-  const [tasks, setTasks] = useState(props.tasks);
-  const addTask = (newTask: Task) => {
-    setTasks([...tasks, newTask]);
-  };
-  const deleteTask = (id: string) => {
-    ajaxDelete(id, () => {
-      const clone = tasks.concat([]);
-      clone.splice(tasks.findIndex(t => t.Id === id), 1);
-      setTasks(clone);
-    });
-  }
+const ToDoList = () => {
+  const { tasks, isLoading, isError } = getTasks();
+  const routing = getRouting();
+  
+  if (isLoading) return <div>loading...</div>
+  if (isError) return <div>error!</div>
   return (
     <>
       <Table data={tasks} 
@@ -50,21 +37,50 @@ const ToDoList = (props: Props): JSX.Element => {
                 )} 
                 title='タスク削除'
                 body={<>タスクを削除します。よろしいですか？</>}
-                callback={() => deleteTask(task.Id)}
+                callback={() => deleteTask(tasks, task.Id)}
               />
             </TableCell>
           </TableRow>
         )} 
       />
-      <AddTaskButton addTask={addTask} />
+      <AddTaskButton addTask={(task) => addTask(tasks, task)} />
     </>
   )
 }
 
-export const getServerSideProps: GetServerSideProps = async (ctx) => {
-  const res = await fetch(resolve(ctx, 'todo'));
-  const data = await res.json();
-  return { props: { tasks: data } };
+export default ToDoList;
+
+const endPoint = getEndPoint();
+
+const getTasks = () => {
+  const { data, error } = useSWR<Task[], Error>(endPoint, api.get);
+  return {
+    tasks: data,
+    isLoading: !error && !data,
+    isError: error
+  };
+}
+
+const getRouting = () => {
+  const router = useRouter();
+  const routing = (e: React.MouseEvent, id: string) => {
+    if (e.defaultPrevented) return;
+    router.push(`/todo/${id}`);
+  }
+  return routing;
 };
 
-export default ToDoList;
+const addTask = (tasks: Task[], newTask: Task) => {
+  return api.post<{ task: Task }, Task>(endPoint, { task: newTask })
+    .then(res => {
+      mutate(endPoint, [...tasks, res], false);
+      return Promise.resolve(res);
+    });
+};
+
+const deleteTask = (tasks: Task[], id: string) => {
+  api.delete(endPoint, { id: id });
+  const clone = tasks.concat([]);
+  clone.splice(tasks.findIndex(t => t.Id === id), 1);
+  mutate(endPoint, clone, false);
+};

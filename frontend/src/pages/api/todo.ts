@@ -22,8 +22,8 @@ let data: Task[] = [
   }
 ];
 
-const read = () => {
-  return data;
+const read = (id?: string) => {
+  return data.filter(d => (id ? d.Id === id : true));
 }
 
 const create = (req: NextApiRequest): Task => {
@@ -56,7 +56,9 @@ const paramToObj = (req: NextApiRequest): Task => {
 export default (req: NextApiRequest, res: NextApiResponse<Task | Task[] | {}>) => {
   switch(req.method){
     case "GET": {
-      res.status(200).json(read());
+      const id = req.query.id as string;
+      const result = read(id);
+      res.status(200).json(id ? result[0] : result);
       break;
     }
     case "POST": {
