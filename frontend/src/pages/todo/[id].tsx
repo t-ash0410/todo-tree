@@ -11,18 +11,18 @@ import TaskView from '../../components/pages/taskDetail';
 import UpdateDetail from '../../components/pages/taskDetailForUpdate';
 
 const Detail = (): JSX.Element => {
-  const {endPoint, endPointWithParam} = getRouterInfo();
-  const {task, isLoading, isError} = getTask(endPointWithParam);
+  const { endPoint, endPointWithParam } = getRouterInfo();
+  const { task, isLoading, isError } = getTask(endPointWithParam);
   const [edit, setEdit] = useState(false);
-  
+
   if (isLoading) return <div>loading...</div>
   if (isError) return <div>error!</div>
   return (
     <>
       {
         edit
-        ? <UpdateDetail task={task} onUpdate={(task) => onUpdate(endPoint, endPointWithParam, task, setEdit)} />
-        : <TaskView task={task} toEditMode={() => setEdit(true)} />
+          ? <UpdateDetail task={task} onUpdate={(task) => onUpdate(endPoint, endPointWithParam, task, setEdit)} />
+          : <TaskView task={task} toEditMode={() => setEdit(true)} />
       }
       <Box p={1}>
         <Link href='/todo/list'>
@@ -35,7 +35,7 @@ const Detail = (): JSX.Element => {
       </Box>
     </>
   )
-} 
+}
 
 export default Detail;
 
@@ -44,7 +44,7 @@ const getRouterInfo = () => {
   const endPoint = getEndPoint();
   return {
     endPoint: endPoint,
-    endPointWithParam: `${endPoint}?id=${router.query.id}`
+    endPointWithParam: `${endPoint}/${router.query.id}`
   };
 }
 
@@ -58,7 +58,7 @@ const getTask = (endPointWithParam: string) => {
 }
 
 const onUpdate = (endPoint: string, endPointWithParam: string, task: Task, setEdit: (boolean) => void) => {
-  api.put<{task: Task}, Task>(endPoint, {task: task})
+  api.put<{ task: Task }, Task>(endPoint, { task: task })
     .then((newTask) => {
       mutate(endPointWithParam, newTask, false);
       setEdit(false);
