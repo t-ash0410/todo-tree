@@ -58,7 +58,7 @@ const getTask = (endPointWithParam: string) => {
 }
 
 const onUpdate = (endPoint: string, endPointWithParam: string, task: Task, setEdit: (boolean) => void) => {
-  api.put<{ task: Task }, Task>(endPoint, { task: task })
+  api.put<Task, Task>(endPoint, task)
     .then((newTask) => {
       mutate(endPointWithParam, newTask, false);
       setEdit(false);

@@ -24,7 +24,7 @@ const AddTaskButton = (props: Props): JSX.Element => {
     setOpen(false);
   };
 
-  const defaultValue = { Id: "", Name: "", Description: "", Author: { Id: "", Name: "" } };
+  const defaultValue = { Id: 0, Name: "", Description: "", Author: { Id: "", Name: "" } };
   const [task, setTask] = useState(defaultValue);
   const changeName = (name: string) => {
     setTask({...task, Name: name });

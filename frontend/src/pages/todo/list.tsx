@@ -63,7 +63,7 @@ const getTasks = () => {
 
 const getRouting = () => {
   const router = useRouter();
-  const routing = (e: React.MouseEvent, id: string) => {
+  const routing = (e: React.MouseEvent, id: number) => {
     if (e.defaultPrevented) return;
     router.push(`/todo/${id}`);
   }
@@ -71,15 +71,15 @@ const getRouting = () => {
 };
 
 const addTask = (tasks: Task[], newTask: Task) => {
-  return api.post<{ task: Task }, Task>(endPoint, { task: newTask })
+  return api.post<Task, Task>(endPoint, newTask)
     .then(res => {
       mutate(endPoint, [...tasks, res], false);
       return Promise.resolve(res);
     });
 };
 
-const deleteTask = (tasks: Task[], id: string) => {
-  api.delete(endPoint, { id: id });
+const deleteTask = (tasks: Task[], id: number) => {
+  api.delete(`${endPoint}/${id}`);
   const clone = tasks.concat([]);
   clone.splice(tasks.findIndex(t => t.Id === id), 1);
   mutate(endPoint, clone, false);

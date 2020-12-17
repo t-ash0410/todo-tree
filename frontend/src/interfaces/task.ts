@@ -1,7 +1,7 @@
 import User, { getInitialObject as getUserInitialObject } from "./user";
 
 interface Task {
-  Id: string;
+  Id: number;
   Name: string;
   Author: User;
   Description: string;
@@ -9,7 +9,7 @@ interface Task {
 
 export const getInitialObject: () => Task = () => {
   return {
-    Id: "",
+    Id: 0,
     Name: "",
     Author: getUserInitialObject(),
     Description: ""
