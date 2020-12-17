@@ -11,7 +11,7 @@ services:
       - "3000:3000"
     volumes:
       - ./frontend:/todo-tree-frontend
-    command: /bin/bash -c "while sleep 1000; do :; done"
+    command: yarn dev
     stdin_open: true
 
   backend:
@@ -24,7 +24,7 @@ services:
       - "9080:9080"
     volumes:
       - ./backend:/todo-tree-backend
-    command: /bin/bash -c "while sleep 1000; do :; done"
+    command: go run main.go
     stdin_open: true
   
   db:
