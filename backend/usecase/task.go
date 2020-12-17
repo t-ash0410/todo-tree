@@ -18,7 +18,7 @@ func (interactor *TaskInteractor) GetAll() (tasks []entity.Task, err error) {
 }
 
 //FindByID IDで検索して返却
-func (interactor *TaskInteractor) FindByID(id int) (task entity.Task, err error) {
+func (interactor *TaskInteractor) FindByID(id int) (task entity.TaskWithAuthor, err error) {
 	task, err = interactor.Query.FindByID(id)
 	return
 }
@@ -30,8 +30,12 @@ func (interactor *TaskInteractor) Add(task entity.Task) (err error) {
 }
 
 //Update タスクの編集
-func (interactor *TaskInteractor) Update(task entity.Task) (err error) {
+func (interactor *TaskInteractor) Update(task entity.Task) (taskWithAuthor entity.TaskWithAuthor, err error) {
 	err = interactor.Command.Update(task)
+	if (err != nil) {
+		return
+	}
+	taskWithAuthor, err = interactor.FindByID(task.Id)
 	return
 }
 

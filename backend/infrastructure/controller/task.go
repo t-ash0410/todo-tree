@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"fmt"
 	"strconv"
 	"todo-tree/entity/task"
 	"todo-tree/interface/controller"
@@ -26,13 +27,17 @@ func NewTaskController(command datastore.ITaskCommand, query datastore.ITaskQuer
 //Create Taskの追加
 func (controller TaskController) Create(c controller.Context) {
 	task := entity.Task{}
-	c.Bind(&task)
+	if err := c.ShouldBind(&task); err != nil {
+		c.JSON(400, err)
+		fmt.Println(err)
+		return
+	}
 	err := controller.Interactor.Add(task)
 	if err != nil {
 		c.JSON(500, err)
 		return
 	}
-	c.JSON(200, nil)
+	c.JSON(200, task)
 }
 
 //Get Taskの取得
@@ -59,13 +64,17 @@ func (controller TaskController) GetList(c controller.Context) {
 //Update Taskの編集
 func (controller TaskController) Update(c controller.Context){
 	task := entity.Task{}
-	c.Bind(&task)
-	err := controller.Interactor.Update(task)
+	if err := c.ShouldBind(&task); err != nil {
+		c.JSON(400, err)
+		fmt.Println(err)
+		return
+	}
+	taskWithAuthor, err := controller.Interactor.Update(task)
 	if err != nil {
 		c.JSON(500, err)
 		return
 	}
-	c.JSON(200, nil)
+	c.JSON(200, taskWithAuthor)
 }
 
 //Delete Taskの削除

@@ -14,5 +14,5 @@ type ITaskCommand interface {
 //ITaskQuery TaskQueryのインターフェース
 type ITaskQuery interface {
 	GetAll() (tasks []entity.Task, err error)
-	FindByID(id int) (task entity.Task, err error)
+	FindByID(id int) (task entity.TaskWithAuthor, err error)
 }

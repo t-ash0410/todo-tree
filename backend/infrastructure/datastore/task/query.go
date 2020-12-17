@@ -34,7 +34,7 @@ func (query DBTaskQuery) GetAll() (tasks []entity.Task, err error) {
 					return tasks, err
 			}
 			task := entity.Task {
-				ID: id,
+				Id: id,
 				Name: name,
 				Description: description,
 			}
@@ -44,7 +44,7 @@ func (query DBTaskQuery) GetAll() (tasks []entity.Task, err error) {
 }
 
 //FindByID TaskをIDで検索して返却
-func (query DBTaskQuery) FindByID(id int) (task entity.Task, err error) {
+func (query DBTaskQuery) FindByID(id int) (task entity.TaskWithAuthor, err error) {
 	var name string
 	var description string
 	
@@ -52,8 +52,10 @@ func (query DBTaskQuery) FindByID(id int) (task entity.Task, err error) {
 		return task, err
 	}
 
-	task.ID = id
+	task.Id = id
 	task.Name = name
 	task.Description = description
+	task.Author.Id = 1
+	task.Author.Name = "ashikawa"
 	return
 }

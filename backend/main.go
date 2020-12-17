@@ -6,6 +6,7 @@ import (
 	controllerInterface "todo-tree/interface/controller"
 	"todo-tree/infrastructure/datastore"
 	"todo-tree/infrastructure/datastore/task"
+	cors "github.com/gin-contrib/cors"
 	gin "github.com/gin-gonic/gin"
 	dig "go.uber.org/dig"
 )
@@ -35,6 +36,11 @@ func initDIContainer() *dig.Container {
 
 func initRouter(container *dig.Container) *gin.Engine {
 	router := gin.Default()
+	
+	//cors
+	config := cors.DefaultConfig();
+	config.AllowOrigins = []string{"http://localhost:3000"}
+	router.Use(cors.New(config))
 
 	router.GET("/todo", func(c *gin.Context) {
 		container.Invoke(func(ctrl controllerInterface.ITaskController) {
@@ -56,7 +62,7 @@ func initRouter(container *dig.Container) *gin.Engine {
 			ctrl.Update(c)
 		})
 	})
-	router.DELETE("/todo", func(c *gin.Context) {
+	router.DELETE("/todo/:id", func(c *gin.Context) {
 		container.Invoke(func(ctrl controllerInterface.ITaskController) {
 			ctrl.Delete(c)
 		})

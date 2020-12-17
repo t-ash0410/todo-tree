@@ -24,13 +24,12 @@ func (repo DBTaskCommand) Create(task entity.Task) (id int, err error) {
 	if result.Error != nil {
 		panic(result.Error)
 	}
-	return task.ID, nil
+	return task.Id, nil
 }
 
 //Update タスクの更新
 func (repo DBTaskCommand) Update(task entity.Task) (err error) {
-	repo.Conn.First(&task)
-	repo.Conn.Save(&task)
+	repo.Conn.Updates(&task)
 	return nil
 }
 
