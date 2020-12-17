@@ -2,12 +2,10 @@ package main
 
 import (
 	"log"
-	"net/http"
-
 	"todo-tree/infrastructure/controller"
+	controllerInterface "todo-tree/interface/controller"
 	"todo-tree/infrastructure/datastore"
-	userRepository "todo-tree/infrastructure/datastore/user"
-
+	"todo-tree/infrastructure/datastore/task"
 	gin "github.com/gin-gonic/gin"
 	dig "go.uber.org/dig"
 )
@@ -24,29 +22,43 @@ func initDIContainer() *dig.Container {
 	container := dig.New()
 	container.Provide(func() (datastore.DBContext, error) {
 		return datastore.DBContext{
-			ConnectionString: "root:password@tcp(172.21.0.2:3306)/todo_tree?charset=utf8mb4&parseTime=True&loc=Local",
+			ConnectionString: "root:password@tcp(db:3306)/todo_tree?charset=utf8mb4&parseTime=True&loc=Local",
 		}, nil
 	})
 	container.Provide(datastore.NewCommandHandler)
 	container.Provide(datastore.NewQueryHandler)
-	container.Provide(userRepository.NewDBUserCommand)
-	container.Provide(userRepository.NewDBUserQuery)
-	container.Provide(controller.NewUserController)
+	container.Provide(repository.NewDBTaskCommand)
+	container.Provide(repository.NewDBTaskQuery)
+	container.Provide(controller.NewTaskController)
 	return container
 }
 
 func initRouter(container *dig.Container) *gin.Engine {
 	router := gin.Default()
 
-	router.StaticFS("/static", http.Dir("../view/static"))
-	router.POST("/users", func(c *gin.Context) {
-		container.Invoke(func(ctrl *controller.UserController) {
+	router.GET("/todo", func(c *gin.Context) {
+		container.Invoke(func(ctrl controllerInterface.ITaskController) {
+			ctrl.GetList(c)
+		})
+	})
+	router.GET("/todo/:id", func(c *gin.Context) {
+		container.Invoke(func(ctrl controllerInterface.ITaskController) {
+			ctrl.Get(c)
+		})
+	})
+	router.POST("/todo", func(c *gin.Context) {
+		container.Invoke(func(ctrl controllerInterface.ITaskController) {
 			ctrl.Create(c)
 		})
 	})
-	router.GET("/users/:id", func(c *gin.Context) {
-		container.Invoke(func(ctrl *controller.UserController) {
-			ctrl.Get(c)
+	router.PUT("/todo", func(c *gin.Context) {
+		container.Invoke(func(ctrl controllerInterface.ITaskController) {
+			ctrl.Update(c)
+		})
+	})
+	router.DELETE("/todo", func(c *gin.Context) {
+		container.Invoke(func(ctrl controllerInterface.ITaskController) {
+			ctrl.Delete(c)
 		})
 	})
 	return router

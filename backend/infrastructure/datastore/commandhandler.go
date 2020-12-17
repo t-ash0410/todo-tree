@@ -1,7 +1,7 @@
 package datastore
 
 import (
-	"todo-tree/entity"
+	"todo-tree/entity/task"
 
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
@@ -27,5 +27,5 @@ func NewCommandHandler(ctx DBContext) SQLCommandHandler {
 
 //SetMigrate アプリケーション内で使用するエンティティのマイグレーションを自動化
 func SetMigrate(conn *gorm.DB) {
-	conn.AutoMigrate(&entity.User{})
+	conn.AutoMigrate(&entity.Task{})
 }
