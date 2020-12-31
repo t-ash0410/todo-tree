@@ -7,4 +7,4 @@ export const api = {
   delete: <TRes>(url: string) => axios.delete(url).then(res => Promise.resolve(res.data as TRes))
 };
 
-export const pathResolver = (endpoint: string) => `http://localhost:8080/${endpoint}`;
+export const pathResolver = (endpoint: string) => `${process.env.NEXT_PUBLIC_API_ENDOPOINT}/${endpoint}`;
