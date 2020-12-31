@@ -11,22 +11,20 @@ services:
       - "3000:3000"
     volumes:
       - ./frontend:/todo-tree-frontend
-    command: yarn dev
+    command: /bin/bash
     stdin_open: true
 
-  backend:
+  backend-editor:
     container_name: todo-tree-backend
     build:
       context: .
       dockerfile: ./backend/Dockerfile
-    ports:
-      - "8080:8080"
-      - "9080:9080"
     volumes:
-      - ./backend:/todo-tree-backend
-    command: go run main.go
+      - ./backend:/tmp/todo-tree-backend
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: /bin/bash
     stdin_open: true
-  
+
   db:
     container_name: todo-tree-db
     build:

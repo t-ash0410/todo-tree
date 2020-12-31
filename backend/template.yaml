@@ -1,0 +1,91 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  todo-treeのSAMテンプレート
+
+Globals:
+  Function:
+    Runtime: go1.x    
+    Timeout: 5
+    Tracing: Active
+    Environment:
+        Variables:
+          DB_CONNECTION_STRING: DB_CONNECTION_STRING
+          ALLOW_ORIGINS: ALLOW_ORIGINS
+
+Resources:
+  ApiGatewayApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      StageName: Prod
+      Cors:
+        AllowMethods: "'GET, POST, PUT, DELETE, OPTIONS'"
+        AllowHeaders: "'Access-Control-Allow-Credentials, Access-Control-Allow-Headers, Content-Type, Content-Length, Accept-Encoding'"
+        AllowOrigin: "'*'"
+        MaxAge: "'600'"
+        AllowCredentials: True
+  GetTodoList:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/todo/get-list/
+      Handler: todo-get
+      Events:
+        CatchAll:
+          Type: Api
+          Properties:
+            Path: /todo/list
+            Method: GET
+            RestApiId:
+              Ref: ApiGatewayApi
+  GetTodo:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/todo/get/
+      Handler: todo-get
+      Events:
+        CatchAll:
+          Type: Api
+          Properties:
+            Path: /todo
+            Method: GET
+            RestApiId:
+              Ref: ApiGatewayApi
+  PostTodo:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/todo/post/
+      Handler: todo-post
+      Events:
+        CatchAll:
+          Type: Api
+          Properties:
+            Path: /todo
+            Method: POST
+            RestApiId:
+              Ref: ApiGatewayApi
+  PutTodo:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/todo/put/
+      Handler: todo-put
+      Events:
+        CatchAll:
+          Type: Api
+          Properties:
+            Path: /todo
+            Method: PUT
+            RestApiId:
+              Ref: ApiGatewayApi
+  DeleteTodo:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: functions/todo/delete/
+      Handler: todo-delete
+      Events:
+        CatchAll:
+          Type: Api
+          Properties:
+            Path: /todo
+            Method: DELETE
+            RestApiId:
+              Ref: ApiGatewayApi

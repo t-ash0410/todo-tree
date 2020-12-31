@@ -1,28 +1,24 @@
 FROM golang:1.13.7
 
-WORKDIR /todo-tree-backend
+ARG USERNAME=vscode
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
 
-ENV GO111MODULE=on
-ENV GOPATH /go
+RUN groupadd --gid $USER_GID $USERNAME \
+    && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \
+    && apt-get update \
+    && apt-get install -y sudo \
+    && echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME \
+    && chmod 0440 /etc/sudoers.d/$USERNAME
 
-RUN apt-get update \
-    && apt-get install -y git \
-    && go get -v \
-    github.com/mdempsky/gocode \
-    github.com/uudashr/gopkgs/v2/cmd/gopkgs \
-    github.com/acroca/go-symbols \
-    golang.org/x/tools/cmd/guru \
-    golang.org/x/tools/cmd/gorename \
-    github.com/cweill/gotests/... \
-    github.com/fatih/gomodifytags \
-    github.com/josharian/impl \
-    github.com/davidrjenni/reftools/cmd/fillstruct \
-    github.com/haya14busa/goplay/cmd/goplay \
-    github.com/godoctor/godoctor \
-    github.com/go-delve/delve/cmd/dlv \
-    github.com/stamblerre/gocode \
-    golang.org/x/lint/golint \
-    github.com/ramya-rao-a/go-outline \
-    && apt-get autoremove -y \
-    && apt-get clean -y \
-    && rm -rf /var/lib/apt/lists/*
+USER $USERNAME
+WORKDIR /home/$USERNAME
+
+RUN sudo apt-get update && sudo apt-get install -y curl git procps && \
+    /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)" && \
+    eval $(/home/linuxbrew/.linuxbrew/bin/brew shellenv) && \
+    echo "eval \$($(brew --prefix)/bin/brew shellenv)" >>~/.profile && \
+    brew tap aws/tap && \
+    brew install aws-sam-cli docker && \
+    brew install aws-sam-cli && \
+    echo "PATH=${PATH}:/usr/local/go/bin" >> ~/.bashrc

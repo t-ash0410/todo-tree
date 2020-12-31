@@ -3,18 +3,24 @@
     "dockerComposeFile": [
         "../../docker-compose.yml"
     ],
-    "service": "backend",
-    "workspaceFolder": "/todo-tree-backend",
+    "remoteUser": "vscode",
+    "service": "backend-editor",
+    "workspaceFolder": "/tmp/todo-tree-backend",
     "extensions": [
         "ms-azuretools.vscode-docker",
         "golang.go",
-        "octref.vetur"
+        "octref.vetur",
+        "be5invis.toml"
     ],
     "settings": {
         "editor.tabSize": 2,
         "files.insertFinalNewline": true,
         "files.trimFinalNewlines": true,
-        "terminal.integrated.shell.linux": "/bin/bash"
+        "terminal.integrated.shell.linux": "/bin/bash",
+        "terminal.integrated.shellArgs.linux": [
+            "-l"
+        ]
     },
+    "postCreateCommand": "sudo chown vscode /var/run/docker.sock",
     "shutdownAction": "none"
 }
