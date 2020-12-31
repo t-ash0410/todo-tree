@@ -50,10 +50,11 @@ const ToDoList = () => {
 
 export default ToDoList;
 
-const endPoint = getEndPoint();
+const defaultEndPoint = getEndPoint()
+      , getListEndPoint = `${defaultEndPoint}/list`;
 
 const getTasks = () => {
-  const { data, error } = useSWR<Task[], Error>(endPoint, api.get);
+  const { data, error } = useSWR<Task[], Error>(getListEndPoint, api.get);
   return {
     tasks: data,
     isLoading: !error && !data,
@@ -71,16 +72,16 @@ const getRouting = () => {
 };
 
 const addTask = (tasks: Task[], newTask: Task) => {
-  return api.post<Task, Task>(endPoint, newTask)
+  return api.post<Task, Task>(defaultEndPoint, newTask)
     .then(res => {
-      mutate(endPoint, [...tasks, res], false);
+      mutate(getListEndPoint, [...tasks, res], false);
       return Promise.resolve(res);
     });
 };
 
 const deleteTask = (tasks: Task[], id: number) => {
-  api.delete(`${endPoint}/${id}`);
+  api.delete(`${defaultEndPoint}?id=${id}`);
   const clone = tasks.concat([]);
   clone.splice(tasks.findIndex(t => t.Id === id), 1);
-  mutate(endPoint, clone, false);
+  mutate(getListEndPoint, clone, false);
 };

@@ -44,7 +44,7 @@ const getRouterInfo = () => {
   const endPoint = getEndPoint();
   return {
     endPoint: endPoint,
-    endPointWithParam: `${endPoint}/${router.query.id}`
+    endPointWithParam: `${endPoint}?id=${router.query.id}`
   };
 }
 
