@@ -3,7 +3,7 @@ import Task from '../../interfaces/task';
 
 let data: Task[] = [
   {
-    Id: "1",
+    Id: 1,
     Name: "task 1",
     Author: {
       Id: "1",
@@ -12,7 +12,7 @@ let data: Task[] = [
     Description: "this is first task"
   },
   {
-    Id: "2",
+    Id: 2,
     Name: "二個目のタスク",
     Author: {
       Id: "1",
@@ -22,7 +22,7 @@ let data: Task[] = [
   }
 ];
 
-const read = (id?: string) => {
+const read = (id?: number) => {
   return data.filter(d => (id ? d.Id === id : true));
 }
 
@@ -44,8 +44,8 @@ const del = (req: NextApiRequest) => {
 
 const paramToObj = (req: NextApiRequest): Task => {
   let task: Task = req.body.params.task;
-  if (task.Id.length === 0){
-    task.Id = `id-${Math.random()}`;
+  if (task.Id === 0){
+    task.Id = Math.random();
   }
   if (task.Author.Id.length === 0){
     task.Author.Id = `id-${Math.random()}`;
@@ -56,7 +56,7 @@ const paramToObj = (req: NextApiRequest): Task => {
 export default (req: NextApiRequest, res: NextApiResponse<Task | Task[] | {}>) => {
   switch(req.method){
     case "GET": {
-      const id = req.query.id as string;
+      const id = parseInt(req.query.id as string);
       const result = read(id);
       res.status(200).json(id ? result[0] : result);
       break;
