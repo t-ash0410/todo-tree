@@ -1,0 +1,26 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - npm update -g npm
+      - npm install
+      - node -v
+      - npm -v
+      - yarn -v
+  pre_build:
+    commands:
+      - echo Install dependencies
+      - yarn install
+  build:
+    commands:
+      - echo Build started on `date`
+      - yarn build
+  # post_build:
+  #   commands:
+  #     - aws s3 sync build/ s3://あなたのバケット名 --exclude '*.DS_Store' --acl public-read --cache-control public,max-age=604800
+  #     - aws cloudfront create-invalidation --distribution-id CloudFrontのIDの --paths /index.html /service-worker.js"
+artifacts:
+  files:
+    - './out/*'
+  base-directory: ./
