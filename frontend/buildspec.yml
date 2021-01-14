@@ -1,0 +1,23 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - npm update -g npm
+      - node -v
+      - npm -v
+      - yarn -v
+  pre_build:
+    commands:
+      - cd ./frontend
+      - echo Install dependencies
+      - yarn install
+  build:
+    commands:
+      - echo Build started on `date`
+      - yarn build
+artifacts:
+  files:
+    - './out/*'
+    - './.next/*'
+  base-directory: ./frontend
