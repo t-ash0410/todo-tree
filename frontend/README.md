@@ -31,7 +31,7 @@ $ docker pull amazon/aws-codebuild-local:latest --disable-content-trust=false
 
 ## run
 ```
-docker run \
+$ docker run \
   -it -v /var/run/docker.sock:/var/run/docker.sock \
   -e "IMAGE_NAME=aws-codebuild-4.0" \
   -e "ARTIFACTS={出力先パス}" \
