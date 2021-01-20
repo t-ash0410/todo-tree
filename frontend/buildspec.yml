@@ -12,6 +12,7 @@ phases:
       - cd frontend
       - echo Install dependencies
       - yarn install
+      - echo NEXT_PUBLIC_API_ENDOPOINT=${NEXT_PUBLIC_API_ENDOPOINT} > .env.production
   build:
     commands:
       - echo Build started on `date`
