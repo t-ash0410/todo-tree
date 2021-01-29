@@ -1,6 +1,0 @@
-{
-  "Parameters": {
-    "DB_CONNECTION_STRING": "root:password@tcp(your ip address:3306)/todo_tree?charset=utf8mb4&parseTime=True&loc=Local",
-    "ALLOW_ORIGINS": "http://localhost:3000"
-  }
-}

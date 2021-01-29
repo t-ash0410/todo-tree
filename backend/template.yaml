@@ -3,32 +3,259 @@ Transform: AWS::Serverless-2016-10-31
 Description: >
   todo-treeのSAMテンプレート
 
+Parameters:
+  # Network
+  VpcCIDR:
+    Type: "String"
+    Default: "10.100.0.0/16"
+  
+  PrivateSubnet1CIDR:
+    Type: "String"
+    Default: "10.100.0.0/18"
+  
+  PrivateSubnet2CIDR:
+    Type: "String"
+    Default: "10.100.128.0/18"
+
+  # RDS
+  RDSDBPort:
+    Type: "Number"
+    MinValue: 1150
+    MaxValue: 65535
+    Default: 3306
+  
+  RDSRootUserName:
+    Type: String
+    AllowedPattern: "[a-zA-Z0-9-]+"
+    MaxLength: 16
+    MinLength: 1
+    Default: "root"
+  
+  RDSRootUserPwd:
+    NoEcho: true
+    Type: "String"
+    MinLength: 1
+    MaxLength: 41
+    AllowedPattern: "^[a-zA-Z0-9]*$"
+  
+  # Application
+  AllowOrigin:
+    Type: String
+
 Globals:
   Function:
     Runtime: go1.x    
-    Timeout: 5
+    Timeout: 30
     Tracing: Active
+    VpcConfig:
+      SecurityGroupIds:
+        - !Ref FunctionSecurityGroup
+      SubnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
     Environment:
         Variables:
-          DB_CONNECTION_STRING: DB_CONNECTION_STRING
-          ALLOW_ORIGINS: ALLOW_ORIGINS
+          GIN_MODE: release
+          ALLOW_ORIGINS: !Join [ "", 
+            [ 
+              "http://", 
+              !Ref AllowOrigin 
+            ] 
+          ]
+          DB_CONNECTION_STRING: !Join [ "", 
+            [ 
+              !Ref RDSRootUserName, ":", !Ref RDSRootUserPwd, 
+              "@tcp(", !GetAtt RDSProxy.Endpoint, ":", !Ref RDSDBPort, ")",
+              "/todo_tree?charset=utf8mb4&parseTime=True&loc=Local"
+            ] 
+          ]
 
 Resources:
-  ApiGatewayApi:
+  # Network
+  VPC:
+    Type: "AWS::EC2::VPC"
+    Properties:
+      CidrBlock: !Ref "VpcCIDR"
+      EnableDnsSupport: "true"
+      EnableDnsHostnames: "true"
+
+  PrivateSubnet1:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      AvailabilityZone: !Select [0, !GetAZs ""]
+      CidrBlock: !Ref "PrivateSubnet1CIDR"
+      VpcId: !Ref VPC
+
+  PrivateSubnet2:
+    Type: "AWS::EC2::Subnet"
+    Properties:
+      AvailabilityZone: !Select [1, !GetAZs ""]
+      CidrBlock: !Ref "PrivateSubnet2CIDR"
+      VpcId: !Ref VPC
+
+  PrivateRouteTable:
+    Type: "AWS::EC2::RouteTable"
+    Properties:
+      VpcId: !Ref VPC
+
+  PrivateSubnet1RouteAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PrivateSubnet1
+
+  PrivateSubnet2RouteAssociation:
+    Type: "AWS::EC2::SubnetRouteTableAssociation"
+    Properties:
+      RouteTableId: !Ref PrivateRouteTable
+      SubnetId: !Ref PrivateSubnet2
+  
+  # SecretsManager
+  RDSMasterPassword:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: sample-rds-root-user
+      SecretString:
+        !Sub |
+        {
+          "username":"${RDSRootUserName}",
+          "password":"${RDSRootUserPwd}"
+        }
+
+  # RDS
+  RDSSecretAttachment:
+    Type: AWS::SecretsManager::SecretTargetAttachment
+    Properties:
+      SecretId: !Ref RDSMasterPassword
+      TargetId: !Ref RDSInstance
+      TargetType: AWS::RDS::DBInstance
+  
+  RDSSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "RDS Security Group"
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          SourceSecurityGroupId: !Ref RDSProxySecurityGroup
+          FromPort: !Ref RDSDBPort
+          ToPort: !Ref RDSDBPort
+  
+  RDSInstance:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      Engine: mysql
+      DBName: todo_tree
+      EngineVersion: 5.7
+      DBInstanceClass: db.t2.small
+      AllocatedStorage: 20
+      StorageType: gp2
+      MasterUsername: !Ref RDSRootUserName
+      MasterUserPassword: !Ref RDSRootUserPwd
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      PubliclyAccessible: false
+      VPCSecurityGroups:
+        - !Ref RDSSecurityGroup
+
+  DBSubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupName: "todo-tree-rds-subnet-group"
+      DBSubnetGroupDescription: "todo-tree-rds-subnet-group"
+      SubnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+
+  # RDS Proxy
+  RDSProxySecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "RDS proxy Security Group"
+      VpcId: !Ref VPC
+      SecurityGroupIngress:
+        - IpProtocol: "tcp"
+          SourceSecurityGroupId: !Ref FunctionSecurityGroup
+          FromPort: !Ref RDSDBPort
+          ToPort: !Ref RDSDBPort
+
+  RDSProxyRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: rds.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: AllowGetSecretValue
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - secretsmanager:GetSecretValue
+                  - secretsmanager:DescribeSecret
+                Resource:
+                  - !Ref RDSSecretAttachment
+
+  RDSProxy:
+    Type: AWS::RDS::DBProxy
+    Properties:
+      DBProxyName: todo-tree-rds-proxy
+      EngineFamily: MYSQL
+      RoleArn: !GetAtt RDSProxyRole.Arn
+      Auth:
+        - AuthScheme: SECRETS
+          SecretArn: !Ref RDSSecretAttachment
+          IAMAuth: DISABLED
+      VpcSecurityGroupIds:
+        - !Ref RDSProxySecurityGroup
+      VpcSubnetIds:
+        - !Ref PrivateSubnet1
+        - !Ref PrivateSubnet2
+
+  RDSProxyTargetGroup:
+    Type: AWS::RDS::DBProxyTargetGroup
+    DependsOn:
+      - RDSInstance
+    Properties:
+      DBProxyName: !Ref RDSProxy
+      DBInstanceIdentifiers:
+        - !Ref RDSInstance
+      TargetGroupName: default
+      ConnectionPoolConfigurationInfo:
+        ConnectionBorrowTimeout: 120
+        MaxConnectionsPercent: 90
+        MaxIdleConnectionsPercent: 10
+
+  #API Gateway
+  APIGateway:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: Prod
+      StageName: Test
       Cors:
         AllowMethods: "'GET, POST, PUT, DELETE, OPTIONS'"
         AllowHeaders: "'Access-Control-Allow-Credentials, Access-Control-Allow-Headers, Content-Type, Content-Length, Accept-Encoding'"
-        AllowOrigin: "'*'"
+        AllowOrigin: !Join [ "", [ "'http://", !Ref AllowOrigin, "'" ] ]
         MaxAge: "'600'"
         AllowCredentials: True
+  
+  #Lambda
+  FunctionSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: "Lambda Security Group"
+      VpcId: !Ref VPC
+
   GetTodoList:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: functions/todo/get-list/
       Handler: todo-get
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
       Events:
         CatchAll:
           Type: Api
@@ -36,12 +263,15 @@ Resources:
             Path: /todo/list
             Method: GET
             RestApiId:
-              Ref: ApiGatewayApi
+              Ref: APIGateway
+  
   GetTodo:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: functions/todo/get/
       Handler: todo-get
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
       Events:
         CatchAll:
           Type: Api
@@ -49,12 +279,15 @@ Resources:
             Path: /todo
             Method: GET
             RestApiId:
-              Ref: ApiGatewayApi
+              Ref: APIGateway
+  
   PostTodo:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: functions/todo/post/
       Handler: todo-post
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
       Events:
         CatchAll:
           Type: Api
@@ -62,12 +295,15 @@ Resources:
             Path: /todo
             Method: POST
             RestApiId:
-              Ref: ApiGatewayApi
+              Ref: APIGateway
+  
   PutTodo:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: functions/todo/put/
       Handler: todo-put
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
       Events:
         CatchAll:
           Type: Api
@@ -75,12 +311,15 @@ Resources:
             Path: /todo
             Method: PUT
             RestApiId:
-              Ref: ApiGatewayApi
+              Ref: APIGateway
+  
   DeleteTodo:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: functions/todo/delete/
       Handler: todo-delete
+      Policies:
+        - AWSLambdaVPCAccessExecutionRole
       Events:
         CatchAll:
           Type: Api
@@ -88,4 +327,4 @@ Resources:
             Path: /todo
             Method: DELETE
             RestApiId:
-              Ref: ApiGatewayApi
+              Ref: APIGateway

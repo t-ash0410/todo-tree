@@ -1,6 +1,8 @@
 package task
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/todo-tree/app"
 	infra "github.com/todo-tree/infrastructure/task"
@@ -25,7 +27,9 @@ func InitGetListRouter() *gin.Engine {
 			ctrl.GetList(c)
 		})
 		if err != nil {
-			panic(err)
+			log.Println(err)
+		}else{
+			log.Println("container invoke error not found.")
 		}
 	})
 	return router
@@ -40,7 +44,9 @@ func InitGetRouter() *gin.Engine {
 			ctrl.Get(c)
 		})
 		if err != nil {
-			panic(err)
+			log.Println(err)
+		}else{
+			log.Println("container invoke error not found.")
 		}
 	})
 	return router
@@ -55,7 +61,9 @@ func InitPostRouter() *gin.Engine {
 			ctrl.Create(c)
 		})
 		if err != nil {
-			panic(err)
+			log.Println(err)
+		}else{
+			log.Println("container invoke error not found.")
 		}
 	})
 	return router
@@ -70,7 +78,9 @@ func InitPutRouter() *gin.Engine {
 			ctrl.Update(c)
 		})
 		if err != nil {
-			panic(err)
+			log.Println(err)
+		}else{
+			log.Println("container invoke error not found.")
 		}
 	})
 	return router
@@ -85,7 +95,9 @@ func InitDeleteRouter() *gin.Engine {
 			ctrl.Delete(c)
 		})
 		if err != nil {
-			panic(err)
+			log.Println(err)
+		}else{
+			log.Println("container invoke error not found.")
 		}
 	})
 	return router

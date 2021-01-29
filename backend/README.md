@@ -14,5 +14,7 @@ $ sam build
 ホストのワークディレクトリで実行
 
 ```
-$ sam local start-api -p 8080 --env-vars config.json
+$ sam local start-api \
+    -p 8080 \
+    --parameter-overrides 'RDSRootUserPwd=password AllowOrigin=localhost:3000'
 ```

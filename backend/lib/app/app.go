@@ -2,6 +2,7 @@ package app
 
 import (
 	"os"
+	"log"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,8 @@ import (
 //GetDIContainer 初期設定済みのDIコンテナを提供
 func GetDIContainer() *dig.Container {
 	connectionString := os.Getenv("DB_CONNECTION_STRING")
+	log.Println("connectionString: " + connectionString)
+
 	container := dig.New()
 	container.Provide(func() (datastore.DBContext, error) {
 		return datastore.DBContext{
@@ -27,6 +30,7 @@ func GetDIContainer() *dig.Container {
 func GetRouter() *gin.Engine {
 	router := gin.Default()
 	allowOrigins := os.Getenv("ALLOW_ORIGINS")
+	log.Println("allowOrigins: " + allowOrigins)
 
 	router.Use(cors.New(cors.Config{
 		AllowOrigins: []string{
