@@ -49,7 +49,7 @@ const getRouterInfo = () => {
 }
 
 const getTask = (endPointWithParam: string) => {
-  const { data, error } = useSWR<Task, Error>(endPointWithParam, api.get);
+  const { data, error } = useSWR<Task, Error>(endPointWithParam, api.get, { shouldRetryOnError: false });
   return {
     task: data,
     isLoading: !error && !data,

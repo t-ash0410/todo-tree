@@ -13,35 +13,35 @@ import { api } from '../../lib/api';
 const ToDoList = () => {
   const { tasks, isLoading, isError } = getTasks();
   const routing = getRouting();
-  
+
   if (isLoading) return <div>loading...</div>
   if (isError) return <div>error!</div>
   return (
     <>
-      <Table data={tasks} 
+      <Table data={tasks}
         headerCols={[
           <TableCell component="th" size='small' >ID</TableCell>,
           <TableCell component="th">名称</TableCell>,
           <TableCell component="th"></TableCell>
-        ]} 
+        ]}
         createBodyRow={(task: Task) => (
           <TableRow key={task.Id} hover onClick={(e) => routing(e, task.Id)}>
             <TableCell component="th" scope="row">{task.Id}</TableCell>
             <TableCell>{task.Name}</TableCell>
             <TableCell align="right">
-              <ModalButton 
+              <ModalButton
                 createButton={(onclick) => (
                   <IconButton aria-label="削除" color='secondary' onClick={(e) => onclick(e)}>
                     <Delete fontSize="small" />
                   </IconButton>
-                )} 
+                )}
                 title='タスク削除'
                 body={<>タスクを削除します。よろしいですか？</>}
                 callback={() => deleteTask(tasks, task.Id)}
               />
             </TableCell>
           </TableRow>
-        )} 
+        )}
       />
       <AddTaskButton addTask={(task) => addTask(tasks, task)} />
     </>
@@ -51,10 +51,10 @@ const ToDoList = () => {
 export default ToDoList;
 
 const defaultEndPoint = getEndPoint()
-      , getListEndPoint = `${defaultEndPoint}/list`;
+  , getListEndPoint = `${defaultEndPoint}/list`;
 
 const getTasks = () => {
-  const { data, error } = useSWR<Task[], Error>(getListEndPoint, api.get);
+  const { data, error } = useSWR<Task[], Error>(getListEndPoint, api.get, { shouldRetryOnError: false });
   return {
     tasks: data,
     isLoading: !error && !data,
