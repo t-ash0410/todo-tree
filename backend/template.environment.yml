@@ -1,7 +1,7 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
 Description: >
-  todo-treeのSAMテンプレート
+  todo-treeの環境構築用SAMテンプレート
 
 Parameters:
   # Network
@@ -37,38 +37,6 @@ Parameters:
     MinLength: 1
     MaxLength: 41
     AllowedPattern: "^[a-zA-Z0-9]*$"
-  
-  # Application
-  AllowOrigin:
-    Type: String
-
-Globals:
-  Function:
-    Runtime: go1.x    
-    Timeout: 30
-    Tracing: Active
-    VpcConfig:
-      SecurityGroupIds:
-        - !Ref FunctionSecurityGroup
-      SubnetIds:
-        - !Ref PrivateSubnet1
-        - !Ref PrivateSubnet2
-    Environment:
-        Variables:
-          GIN_MODE: release
-          ALLOW_ORIGINS: !Join [ "", 
-            [ 
-              "http://", 
-              !Ref AllowOrigin 
-            ] 
-          ]
-          DB_CONNECTION_STRING: !Join [ "", 
-            [ 
-              !Ref RDSRootUserName, ":", !Ref RDSRootUserPwd, 
-              "@tcp(", !GetAtt RDSProxy.Endpoint, ":", !Ref RDSDBPort, ")",
-              "/todo_tree?charset=utf8mb4&parseTime=True&loc=Local"
-            ] 
-          ]
 
 Resources:
   # Network
@@ -230,101 +198,9 @@ Resources:
         MaxConnectionsPercent: 90
         MaxIdleConnectionsPercent: 10
 
-  #API Gateway
-  APIGateway:
-    Type: AWS::Serverless::Api
-    Properties:
-      StageName: Test
-      Cors:
-        AllowMethods: "'GET, POST, PUT, DELETE, OPTIONS'"
-        AllowHeaders: "'Access-Control-Allow-Credentials, Access-Control-Allow-Headers, Content-Type, Content-Length, Accept-Encoding'"
-        AllowOrigin: !Join [ "", [ "'http://", !Ref AllowOrigin, "'" ] ]
-        MaxAge: "'600'"
-        AllowCredentials: True
-  
   #Lambda
   FunctionSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: "Lambda Security Group"
       VpcId: !Ref VPC
-
-  GetTodoList:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: functions/todo/get-list/
-      Handler: todo-get
-      Policies:
-        - AWSLambdaVPCAccessExecutionRole
-      Events:
-        CatchAll:
-          Type: Api
-          Properties:
-            Path: /todo/list
-            Method: GET
-            RestApiId:
-              Ref: APIGateway
-  
-  GetTodo:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: functions/todo/get/
-      Handler: todo-get
-      Policies:
-        - AWSLambdaVPCAccessExecutionRole
-      Events:
-        CatchAll:
-          Type: Api
-          Properties:
-            Path: /todo
-            Method: GET
-            RestApiId:
-              Ref: APIGateway
-  
-  PostTodo:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: functions/todo/post/
-      Handler: todo-post
-      Policies:
-        - AWSLambdaVPCAccessExecutionRole
-      Events:
-        CatchAll:
-          Type: Api
-          Properties:
-            Path: /todo
-            Method: POST
-            RestApiId:
-              Ref: APIGateway
-  
-  PutTodo:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: functions/todo/put/
-      Handler: todo-put
-      Policies:
-        - AWSLambdaVPCAccessExecutionRole
-      Events:
-        CatchAll:
-          Type: Api
-          Properties:
-            Path: /todo
-            Method: PUT
-            RestApiId:
-              Ref: APIGateway
-  
-  DeleteTodo:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: functions/todo/delete/
-      Handler: todo-delete
-      Policies:
-        - AWSLambdaVPCAccessExecutionRole
-      Events:
-        CatchAll:
-          Type: Api
-          Properties:
-            Path: /todo
-            Method: DELETE
-            RestApiId:
-              Ref: APIGateway
