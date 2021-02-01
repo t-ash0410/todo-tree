@@ -7,6 +7,7 @@ phases:
   build:
     commands:
       - echo Build started on `date`
+      - cd backend
       - sam build -t template.api.yml
   post_build:
     commands:
