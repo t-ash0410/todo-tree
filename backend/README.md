@@ -63,7 +63,6 @@ $ sam deploy \
 ## APIのデプロイ
 
 ```
-$ sam deploy \
-    --config-file samconfig.api.toml \
+$ sam deploy --config-file samconfig.api.toml \
     --parameter-overrides 'FunctionSecurityGroupId=${FunctionSecurityGroupId} PrivateSubnet1Id=${PrivateSubnet1Id} PrivateSubnet2Id=${PrivateSubnet2Id} DBEndpoint=${DBEndpoint} DBRootUserPwd=${DBRootUserPwd} AllowOrigin=${AllowOrigin}'
 ```
