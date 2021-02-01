@@ -12,10 +12,7 @@ phases:
   post_build:
     commands:
       - echo Deploy started on `date`
-      - sam deploy \
-        --stack-name todo-tree-backend-api \
-        --config-file samconfig.api.toml \
-        --parameter-overrides 'FunctionSecurityGroupId=${FunctionSecurityGroupId} PrivateSubnet1Id=${PrivateSubnet1Id} PrivateSubnet2Id=${PrivateSubnet2Id} DBEndpoint=${DBEndpoint} DBRootUserPwd=${DBRootUserPwd} AllowOrigin=${AllowOrigin}'
+      - sam deploy --config-file samconfig.api.toml --parameter-overrides 'FunctionSecurityGroupId=${FunctionSecurityGroupId} PrivateSubnet1Id=${PrivateSubnet1Id} PrivateSubnet2Id=${PrivateSubnet2Id} DBEndpoint=${DBEndpoint} DBRootUserPwd=${DBRootUserPwd} AllowOrigin=${AllowOrigin}'
 artifacts:
   files:
     - ".aws-sam/**/*"
