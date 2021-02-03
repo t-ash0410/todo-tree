@@ -26,7 +26,6 @@ Parameters:
   
   RDSRootUserName:
     Type: String
-    AllowedPattern: "[a-zA-Z0-9-]+"
     MaxLength: 16
     MinLength: 1
     Default: "root"
@@ -36,7 +35,6 @@ Parameters:
     Type: "String"
     MinLength: 1
     MaxLength: 41
-    AllowedPattern: "^[a-zA-Z0-9]*$"
 
   # CodeBuild
   CodeBuildRoleId: 
