@@ -2,8 +2,8 @@ version = 0.1
 [default]
 [default.deploy]
 [default.deploy.parameters]
-stack_name = "todo-tree-backend-api"
-s3_bucket = "sam-todo-tree-backend-api"
-s3_prefix = "todo-tree-backend-api"
+stack_name = "todo-tree-backend"
+s3_bucket = "sam-todo-tree"
+s3_prefix = "todo-tree-backend"
 region = "ap-northeast-1"
 capabilities = "CAPABILITY_IAM"

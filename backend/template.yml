@@ -59,19 +59,8 @@ Globals:
     Environment:
         Variables:
           GIN_MODE: release
-          ALLOW_ORIGINS: !Join [ "", 
-            [ 
-              "http://", 
-              !Ref AllowOrigin 
-            ]
-          ]
-          DB_CONNECTION_STRING: !Join [ "", 
-            [ 
-              !Ref DBRootUserName, ":", !Ref DBRootUserPwd, 
-              "@tcp(", !Ref DBEndpoint, ":", !Ref DBPort, ")",
-              "/todo_tree?charset=utf8mb4&parseTime=True&loc=Local"
-            ] 
-          ]
+          ALLOW_ORIGINS: !Sub 'http://${AllowOrigin}'
+          DB_CONNECTION_STRING: !Sub '${DBRootUserName}:${DBRootUserPwd}@tcp(${DBEndpoint}:${DBPort})/todo_tree?charset=utf8mb4&parseTime=True&loc=Local'
 
 Resources:
   APIGateway:

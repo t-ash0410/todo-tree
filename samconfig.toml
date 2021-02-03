@@ -2,9 +2,9 @@ version = 0.1
 [default]
 [default.deploy]
 [default.deploy.parameters]
-stack_name = "todo-tree-backend-env"
-s3_bucket = "sam-todo-tree-backend-environment"
-s3_prefix = "todo-tree-backend-env"
+stack_name = "todo-tree-environment"
+s3_bucket = "sam-todo-tree"
+s3_prefix = "todo-tree-environment"
 region = "ap-northeast-1"
 capabilities = "CAPABILITY_IAM"
 confirm_changeset = true

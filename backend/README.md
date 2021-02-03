@@ -49,20 +49,8 @@ $ docker run \
 ```
 
 # deploy
-いずれもホストのワークディレクトリで実行
-
-## 環境のデプロイ
+ホストのワークディレクトリで実行
 
 ```
-$ sam deploy \
-    -t template.environment.yml \
-    --config-file samconfig.environment.toml \
-    --parameter-overrides 'RDSRootUserPwd=${RDSRootUserPwd}'
-```
-
-## APIのデプロイ
-
-```
-$ sam deploy --config-file samconfig.api.toml \
-    --parameter-overrides 'FunctionSecurityGroupId=${FunctionSecurityGroupId} PrivateSubnet1Id=${PrivateSubnet1Id} PrivateSubnet2Id=${PrivateSubnet2Id} DBEndpoint=${DBEndpoint} DBRootUserPwd=${DBRootUserPwd} AllowOrigin=${AllowOrigin}'
+$ sam deploy --parameter-overrides 'FunctionSecurityGroupId=${FunctionSecurityGroupId} PrivateSubnet1Id=${PrivateSubnet1Id} PrivateSubnet2Id=${PrivateSubnet2Id} DBEndpoint=${DBEndpoint} DBRootUserPwd=${DBRootUserPwd} AllowOrigin=${AllowOrigin}'
 ```
