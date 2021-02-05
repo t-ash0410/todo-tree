@@ -12,9 +12,8 @@ https://azure.microsoft.com/ja-jp/products/visual-studio-code/
 # start container
 shift + command + P => >Remote-Containers: Rebuild And Reopen Container
 
-
 ## 環境のデプロイ
 
 ```
-$ sam deploy --parameter-overrides 'RDSRootUserPwd=${RDSRootUserPwd} CodeBuildRoleId=${CodeBuildRoleId}'
+$ bash deploy.env.sh -p ${password}
 ```

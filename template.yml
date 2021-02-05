@@ -40,6 +40,10 @@ Parameters:
   CodeBuildRoleId: 
     Type: String
 
+  # IAM
+  DeployUserArn:
+    Type: String 
+
 Resources:
   # Network
   VPC:
@@ -48,6 +52,9 @@ Resources:
       CidrBlock: !Ref "VpcCIDR"
       EnableDnsSupport: "true"
       EnableDnsHostnames: "true"
+      Tags: 
+        - Key: "Name"
+          Value: "todo-tree-vpc"
 
   PrivateSubnet1:
     Type: "AWS::EC2::Subnet"
@@ -55,6 +62,9 @@ Resources:
       AvailabilityZone: !Select [0, !GetAZs ""]
       CidrBlock: !Ref "PrivateSubnet1CIDR"
       VpcId: !Ref VPC
+      Tags: 
+        - Key: "Name"
+          Value: "todo-tree-private-subnet-1"
 
   PrivateSubnet2:
     Type: "AWS::EC2::Subnet"
@@ -62,6 +72,9 @@ Resources:
       AvailabilityZone: !Select [1, !GetAZs ""]
       CidrBlock: !Ref "PrivateSubnet2CIDR"
       VpcId: !Ref VPC
+      Tags: 
+        - Key: "Name"
+          Value: "todo-tree-private-subnet-2"
 
   PrivateRouteTable:
     Type: "AWS::EC2::RouteTable"
@@ -204,6 +217,7 @@ Resources:
   FunctionSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
+      GroupName: "todo-tree-lambda-security-group"
       GroupDescription: "Lambda Security Group"
       VpcId: !Ref VPC
 
@@ -236,7 +250,8 @@ Resources:
             Resource: !Sub 'arn:aws:s3:::${S3Bucket}/*'
           - Sid: Deny
             Effect: Deny
-            Principal: '*'
+            NotPrincipal: 
+              AWS: !Ref 'DeployUserArn'
             Action: s3:*
             Resource: !Sub 'arn:aws:s3:::${S3Bucket}/*'
             Condition:
@@ -266,3 +281,6 @@ Resources:
           MaxTTL: 300
           MinTTL: 300
           ViewerProtocolPolicy: redirect-to-https
+      Tags: 
+        - Key: "Name"
+          Value: "todo-tree-front-distribution"

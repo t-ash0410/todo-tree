@@ -57,7 +57,7 @@ Globals:
     Environment:
         Variables:
           GIN_MODE: release
-          ALLOW_ORIGINS: !Sub 'http://${AllowOrigin}'
+          ALLOW_ORIGINS: !Ref AllowOrigin
           DB_CONNECTION_STRING: !Sub '${DBRootUserName}:${DBRootUserPwd}@tcp(${DBEndpoint}:${DBPort})/todo_tree?charset=utf8mb4&parseTime=True&loc=Local'
 
 Resources:
@@ -68,7 +68,7 @@ Resources:
       Cors:
         AllowMethods: "'GET, POST, PUT, DELETE, OPTIONS'"
         AllowHeaders: "'Access-Control-Allow-Credentials, Access-Control-Allow-Headers, Content-Type, Content-Length, Accept-Encoding'"
-        AllowOrigin: !Join [ "", [ "'http://", !Ref AllowOrigin, "'" ] ]
+        AllowOrigin: !Join [ "", [ "'", !Ref AllowOrigin, "'" ] ]
         MaxAge: "'600'"
         AllowCredentials: True
 
