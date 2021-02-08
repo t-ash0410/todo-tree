@@ -1,5 +1,4 @@
 #!/bin/bash
-# 事前にsam buildをしておく
 
 while getopts p: OPT
 do
@@ -15,6 +14,14 @@ if [ "$password" == "" ]; then
 fi
 
 echo "deploy start date: `date`"
+
+pwd=$(pwd)
+command='docker run -it'
+command+=' -v /var/run/docker.sock:/var/run/docker.sock'
+command+=' -v '$pwd':/tmp/todo-tree-backend'
+command+=' todo-tree_backend-editor /bin/bash '\''/tmp/todo-tree-backend/build.sh'\'
+echo "command: $command"
+eval $command
 
 vpc=$(aws ec2 describe-vpcs --filters Name=tag:Name,Values=todo-tree-vpc --query "Vpcs[*].[VpcId]" --output text)
 echo "vpc id: ${vpc}"
@@ -35,7 +42,7 @@ arns=$(aws cloudfront list-distributions | jq -r ".DistributionList.Items[].ARN"
 for a in $arns
 do
     if [ $(aws cloudfront list-tags-for-resource --resource $a | jq -r ".Tags.Items[].Value") == 'todo-tree-front-distribution' ]; then
-        distribution_id=${a:(-13)}
+        distribution_id=${a##*/}
     fi
 done
 alloworigin='https://'
