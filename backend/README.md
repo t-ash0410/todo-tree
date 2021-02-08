@@ -7,17 +7,16 @@ https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/s
 コンテナのワークディレクトリで実行
 
 ```
-$ sam build -t template.api.yml
+$ sam build -t template.yml
 ```
 
 # debug
-## next
 ホストのワークディレクトリで実行
 
 ```
 $ sam local start-api \
     -p 8080 \
-    --parameter-overrides 'DBEndpoint=${hostname} DBPort=3306 DBRootUserName=root DBRootUserPwd=password AllowOrigin=localhost:3000'
+    --parameter-overrides 'DBEndpoint=${hostname} DBPort=3306 DBRootUserName=root DBRootUserPwd=password AllowOrigin=https://localhost:3000'
 ```
 
 ## AWS Code Build
