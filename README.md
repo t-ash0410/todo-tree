@@ -13,7 +13,13 @@ https://azure.microsoft.com/ja-jp/products/visual-studio-code/
 shift + command + P => >Remote-Containers: Rebuild And Reopen Container
 
 ## 環境のデプロイ
-
+プロジェクトのルートディレクトリで実行
 ```
-$ bash deploy.env.sh -p ${password}
+$ bash scripts/deploy.env.sh -p ${password}
+```
+
+## 一括デプロイ
+プロジェクトのルートディレクトリで実行
+```
+$ bash scripts/deploy.all.sh -p ${password}
 ```

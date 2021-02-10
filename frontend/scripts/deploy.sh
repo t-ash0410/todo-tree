@@ -6,9 +6,14 @@ echo "deploy start date: `date`"
 api_id=$(aws apigateway get-rest-apis | jq -r '.items[] | select(.name == "todo-tree-backend") | .id')
 api_endpoint="https://$api_id.execute-api.ap-northeast-1.amazonaws.com/Test"
 
+# get api key
+api_key_id=$(aws apigateway get-api-keys --name-query dev | jq -r ".items[].id")
+api_key=$(aws apigateway get-api-key --api-key $api_key_id --include-value | jq -r ".value")
+
 # create docker env file
 env_var="NODE_ENV=production
-NEXT_PUBLIC_API_ENDOPOINT=$api_endpoint"
+NEXT_PUBLIC_API_ENDOPOINT=$api_endpoint
+NEXT_PUBLIC_API_KEY=$api_key"
 tmp_env_file_name="deploy.env"
 command='echo -e "$env_var" > '$tmp_env_file_name
 echo "command: $command"
@@ -44,7 +49,7 @@ command="unzip out/artifacts.zip"
 echo "command: $command"
 eval $command
 
-# delete artifacts
+# delete artifacts.zip
 command="rm out/artifacts.zip"
 echo "command: $command"
 eval $command
@@ -60,7 +65,7 @@ arns=$(aws cloudfront list-distributions | jq -r ".DistributionList.Items[].ARN"
 for a in $arns
 do
     if [ $(aws cloudfront list-tags-for-resource --resource $a | jq -r ".Tags.Items[].Value") == 'todo-tree-front-distribution' ]; then
-        distribution_id=${a:(-13)}
+        distribution_id=${a##*/}
     fi
 done
 command=$(echo aws cloudfront create-invalidation --distribution-id $distribution_id --paths "/*")

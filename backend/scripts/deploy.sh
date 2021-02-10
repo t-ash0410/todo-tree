@@ -19,7 +19,7 @@ pwd=$(pwd)
 command='docker run -it'
 command+=' -v /var/run/docker.sock:/var/run/docker.sock'
 command+=' -v '$pwd':/tmp/todo-tree-backend'
-command+=' todo-tree_backend-editor /bin/bash '\''/tmp/todo-tree-backend/build.sh'\'
+command+=' todo-tree_backend-editor /bin/bash '\''/tmp/todo-tree-backend/scripts/build.sh'\'
 echo "command: $command"
 eval $command
 

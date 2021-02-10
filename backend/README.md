@@ -4,19 +4,17 @@
 https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-install-mac.html
 
 # build
-コンテナのワークディレクトリで実行
+コンテナのプロジェクトルートディレクトリで実行
 
 ```
 $ sam build -t template.yml
 ```
 
 # debug
-ホストのワークディレクトリで実行
+ホストのプロジェクトルートディレクトリで実行
 
 ```
-$ sam local start-api \
-    -p 8080 \
-    --parameter-overrides 'DBEndpoint=${hostname} DBPort=3306 DBRootUserName=root DBRootUserPwd=password AllowOrigin=https://localhost:3000'
+$ bash scripts/debug.sh
 ```
 
 ## AWS Code Build
@@ -48,8 +46,8 @@ $ docker run \
 ```
 
 # deploy
-ホストのワークディレクトリで実行
+ホストのプロジェクトルートディレクトリで実行
 
 ```
-$ sam deploy --parameter-overrides 'FunctionSecurityGroupId=${FunctionSecurityGroupId} PrivateSubnet1Id=${PrivateSubnet1Id} PrivateSubnet2Id=${PrivateSubnet2Id} DBEndpoint=${DBEndpoint} DBRootUserPwd=${DBRootUserPwd} AllowOrigin=${AllowOrigin}'
+$ bash scripts/deploy.sh
 ```

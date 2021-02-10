@@ -39,6 +39,11 @@ Parameters:
     MinLength: 1
     MaxLength: 41
   
+  # Api gateway
+  Stage: 
+    Type: String
+    Default: "Test"
+
   # Application
   AllowOrigin:
     Type: String
@@ -61,17 +66,54 @@ Globals:
           DB_CONNECTION_STRING: !Sub '${DBRootUserName}:${DBRootUserPwd}@tcp(${DBEndpoint}:${DBPort})/todo_tree?charset=utf8mb4&parseTime=True&loc=Local'
 
 Resources:
+  # API Gateway
   APIGateway:
     Type: AWS::Serverless::Api
     Properties:
-      StageName: Test
+      StageName: !Ref Stage
       Cors:
         AllowMethods: "'GET, POST, PUT, DELETE, OPTIONS'"
-        AllowHeaders: "'Access-Control-Allow-Credentials, Access-Control-Allow-Headers, Content-Type, Content-Length, Accept-Encoding'"
+        AllowHeaders: "'Access-Control-Allow-Credentials, Access-Control-Allow-Headers, Content-Type, Content-Length, Accept-Encoding, x-api-key'"
         AllowOrigin: !Join [ "", [ "'", !Ref AllowOrigin, "'" ] ]
         MaxAge: "'600'"
         AllowCredentials: True
 
+  APIKey:
+    Type: AWS::ApiGateway::ApiKey
+    DependsOn: 
+      - APIGateway
+      - APIGatewayStage
+    Properties: 
+      Name: "dev"
+      Description: "dev environment api key."
+      Enabled: true
+
+  APIUsagePlan:
+    Type: AWS::ApiGateway::UsagePlan
+    DependsOn: 
+      - APIGateway
+      - APIGatewayStage
+    Properties: 
+      UsagePlanName: "dev"
+      Description: "dev environment api usage plan."
+      ApiStages: 
+        - ApiId: !Ref APIGateway
+          Stage: !Ref Stage
+      Throttle: 
+        BurstLimit: 200
+        RateLimit: 100
+  
+  APIUsagePlanKey:
+    Type: AWS::ApiGateway::UsagePlanKey
+    DependsOn:
+      - APIKey
+      - APIUsagePlan
+    Properties: 
+      KeyId: !Ref APIKey
+      KeyType: "API_KEY"
+      UsagePlanId: !Ref APIUsagePlan
+
+  # Lambda
   GetTodoList:
     Type: AWS::Serverless::Function
     Properties:
@@ -80,13 +122,14 @@ Resources:
       Policies:
         - AWSLambdaVPCAccessExecutionRole
       Events:
-        CatchAll:
+        ApiKey:
           Type: Api
           Properties:
             Path: /todo/list
             Method: GET
-            RestApiId:
-              Ref: APIGateway
+            RestApiId: !Ref APIGateway
+            Auth:
+              ApiKeyRequired: true
   
   GetTodo:
     Type: AWS::Serverless::Function
@@ -96,13 +139,14 @@ Resources:
       Policies:
         - AWSLambdaVPCAccessExecutionRole
       Events:
-        CatchAll:
+        ApiKey:
           Type: Api
           Properties:
             Path: /todo
             Method: GET
-            RestApiId:
-              Ref: APIGateway
+            RestApiId: !Ref APIGateway
+            Auth:
+              ApiKeyRequired: true
   
   PostTodo:
     Type: AWS::Serverless::Function
@@ -112,13 +156,14 @@ Resources:
       Policies:
         - AWSLambdaVPCAccessExecutionRole
       Events:
-        CatchAll:
+        ApiKey:
           Type: Api
           Properties:
             Path: /todo
             Method: POST
-            RestApiId:
-              Ref: APIGateway
+            RestApiId: !Ref APIGateway
+            Auth:
+              ApiKeyRequired: true
   
   PutTodo:
     Type: AWS::Serverless::Function
@@ -128,13 +173,14 @@ Resources:
       Policies:
         - AWSLambdaVPCAccessExecutionRole
       Events:
-        CatchAll:
+        ApiKey:
           Type: Api
           Properties:
             Path: /todo
             Method: PUT
-            RestApiId:
-              Ref: APIGateway
+            RestApiId: !Ref APIGateway
+            Auth:
+              ApiKeyRequired: true
   
   DeleteTodo:
     Type: AWS::Serverless::Function
@@ -144,10 +190,11 @@ Resources:
       Policies:
         - AWSLambdaVPCAccessExecutionRole
       Events:
-        CatchAll:
+        ApiKey:
           Type: Api
           Properties:
             Path: /todo
             Method: DELETE
-            RestApiId:
-              Ref: APIGateway
+            RestApiId: !Ref APIGateway
+            Auth:
+              ApiKeyRequired: true
